@@ -89,33 +89,55 @@ if (keyU &amp;&amp; grounded) {
 }
 
 if (keyL) {
-    if (xspd - xspd_step &lt; -max_xspd)
-        xspd = -max_xspd;
-    else
-        xspd -= xspd_step;
+    if (!place_meeting(x-xspd_step,y,obj_wall)) {
+        if (xspd - xspd_step &lt; -max_xspd)
+            xspd = -max_xspd;
+        else
+            xspd -= xspd_step;
+    } else
+        x = floor(x);
 } else if (xspd &lt; 0)
     xspd += xspd_step;
 
 if (keyR) {
-    if (xspd + xspd_step &gt; max_xspd)
-        xspd = max_xspd;
-    else
-        xspd += xspd_step;
+    if (!place_meeting(x+xspd_step,y,obj_wall)) {
+        if (xspd + xspd_step &gt; max_xspd)
+            xspd = max_xspd;
+        else
+            xspd += xspd_step;
+    } else
+        x = ceil(x);
 } else if (xspd &gt; 0)
     xspd -= xspd_step;
 
 // Collision Detection
-if (place_meeting(x,y+yspd+0.1,obj_wall)) {
+if (place_meeting(x,y+yspd,obj_wall)) {
     if (yspd &gt; 0) {
-        yspd = 0;
+        for (i = 1; i &lt; yspd; ++i)
+            if (!place_meeting(x,y+1,obj_wall))
+                y++;
+        y = floor(y);
         grounded = true;
-    } else
-        yspd = 0;
-} else
+    }
+    yspd = 0;
+}
+
+if (grounded &amp;&amp; !place_meeting(x,y+1,obj_wall))
     grounded = false;
 
-if (place_meeting(x+xspd,y,obj_wall))
+if (place_meeting(x+xspd,y,obj_wall)) {
+    for (i = 1; i &lt; -xspd; ++i)
+        if (!place_meeting(x-1,y,obj_wall))
+            x--;
+    x = floor(x);
     xspd = 0;
+} else if (place_meeting(x+xspd+1,y,obj_wall)){
+    for (i = 1; i &lt; xspd; ++i)
+        if (!place_meeting(x+2,y,obj_wall))
+            x++;
+    x = ceil(x);
+    xspd = 0;
+}
     
 // Move Player
 y += yspd;
