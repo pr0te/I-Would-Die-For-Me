@@ -31,8 +31,11 @@ height = 24;
 
 // Speed Constants
 max_fallspd = 8;
+max_grindspd = 1;
 fallspd_step = 0.2
 jumpspd = -5;
+wj_height = 3;
+wj_dist = 5;
 
 max_xspd = 2;
 xspd_step = 0.2;
@@ -44,8 +47,7 @@ yspd = 0;
 
 // Collision tags
 grounded = false;
-leftcol = false;
-rightcol = false;
+wallgrinding = false;
 </string>
           </argument>
         </arguments>
@@ -76,16 +78,28 @@ keyD = keyboard_check(vk_down);
 
 // Gravity
 if (!grounded) {
-    if (yspd + fallspd_step &gt; max_fallspd)
-        yspd = max_fallspd;
+    if (wallgrinding) max_spd = max_grindspd;
+    else max_spd = max_fallspd;
+    if (yspd + fallspd_step &gt; max_spd)
+        yspd = max_spd;
     else
         yspd += fallspd_step;    
 }
 
 // Movement
-if (keyU &amp;&amp; grounded) {
-    yspd = jumpspd;
-    grounded = false;
+if (keyU) {
+    if (grounded) {
+        yspd = jumpspd;
+        grounded = false;
+    }
+    if (wallgrinding) {
+        yspd = -wj_height;
+        if (place_meeting(x+1,y,obj_wall))
+            xspd = -wj_dist;
+        else if (place_meeting(x-1,y,obj_wall))
+            xspd = wj_dist;
+        wallgrinding = false;
+    }
 }
 
 if (keyL) {
@@ -100,7 +114,7 @@ if (keyL) {
     xspd += xspd_step;
 
 if (keyR) {
-    if (!place_meeting(x+xspd_step,y,obj_wall)) {
+    if (!place_meeting(x+xspd_step+1,y,obj_wall)) {
         if (xspd + xspd_step &gt; max_xspd)
             xspd = max_xspd;
         else
@@ -110,7 +124,29 @@ if (keyR) {
 } else if (xspd &gt; 0)
     xspd -= xspd_step;
 
-// Collision Detection
+// X Collision
+
+if (xspd &lt; 0 &amp;&amp; place_meeting(x+xspd,y,obj_wall)) {
+    for (i = 1; i &lt; -xspd; ++i)
+        if (!place_meeting(x-1,y,obj_wall))
+            x--;
+    x = floor(x);
+    xspd = 0;
+} else if (xspd &gt; 0 &amp;&amp; place_meeting(x+xspd+1,y,obj_wall)){
+    for (i = 1; i &lt; xspd; ++i)
+        if (!place_meeting(x+2,y,obj_wall))
+            x++;
+    x = ceil(x);
+    xspd = 0;
+}
+
+// Wallgrinding
+wallgrinding = (place_meeting(x+1,y,obj_wall) || place_meeting(x-1,y,obj_wall))
+    
+// Move Player X
+x += xspd;
+    
+// Y Collision
 if (place_meeting(x,y+yspd,obj_wall)) {
     if (yspd &gt; 0) {
         for (i = 1; i &lt; yspd; ++i)
@@ -118,30 +154,21 @@ if (place_meeting(x,y+yspd,obj_wall)) {
                 y++;
         y = floor(y);
         grounded = true;
+        wallgrinding = false;
+    } else {
+        for (i = 1; i &lt; -yspd; ++i)
+            if (!place_meeting(x,y-1,obj_wall))
+                y--;
+        y = floor(y);
     }
     yspd = 0;
 }
 
 if (grounded &amp;&amp; !place_meeting(x,y+1,obj_wall))
     grounded = false;
-
-if (place_meeting(x+xspd,y,obj_wall)) {
-    for (i = 1; i &lt; -xspd; ++i)
-        if (!place_meeting(x-1,y,obj_wall))
-            x--;
-    x = floor(x);
-    xspd = 0;
-} else if (place_meeting(x+xspd+1,y,obj_wall)){
-    for (i = 1; i &lt; xspd; ++i)
-        if (!place_meeting(x+2,y,obj_wall))
-            x++;
-    x = ceil(x);
-    xspd = 0;
-}
     
-// Move Player
+// Move Player Y
 y += yspd;
-x += xspd;
 </string>
           </argument>
         </arguments>
