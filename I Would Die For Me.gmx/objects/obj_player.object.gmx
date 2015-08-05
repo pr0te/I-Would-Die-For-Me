@@ -25,9 +25,11 @@
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>// Proportions
+            <string>// Properties
 width = 16;
 height = 24;
+startx = x;
+starty = y;
 
 // Speed Constants
 max_fallspd = 8;
@@ -45,9 +47,36 @@ xspd_step = 0.2;
 xspd = 0;
 yspd = 0;
 
-// Collision tags
+// Tags
+dead = false;
+holdingUp = false;
 grounded = false;
 wallgrinding = false;
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="3" enumb="2">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>// Set holding flag after code execution
+if (keyU)
+    holdingUp = true;
 </string>
           </argument>
         </arguments>
@@ -76,6 +105,16 @@ keyR = keyboard_check(vk_right);
 keyU = keyboard_check(vk_up);
 keyD = keyboard_check(vk_down);
 
+if (holdingUp &amp;&amp; !keyU)
+    holdingUp = false;
+
+// Spike?
+if (place_meeting(x,y,obj_spike)) {
+    instance_create(x,y,obj_wall);
+    x = startx;
+    y = starty;
+}
+
 // Gravity
 if (!grounded) {
     if (wallgrinding) max_spd = max_grindspd;
@@ -87,7 +126,7 @@ if (!grounded) {
 }
 
 // Movement
-if (keyU) {
+if (keyU &amp;&amp; !holdingUp) {
     if (grounded) {
         yspd = jumpspd;
         grounded = false;
@@ -113,7 +152,7 @@ if (keyL) {
 } else if (xspd &lt; 0)
     xspd += xspd_step;
 
-if (keyR) {
+if (!dead &amp;&amp; keyR) {
     if (!place_meeting(x+xspd_step+1,y,obj_wall)) {
         if (xspd + xspd_step &gt; max_xspd)
             xspd = max_xspd;
@@ -141,7 +180,7 @@ if (xspd &lt; 0 &amp;&amp; place_meeting(x+xspd,y,obj_wall)) {
 }
 
 // Wallgrinding
-wallgrinding = (place_meeting(x+1,y,obj_wall) || place_meeting(x-1,y,obj_wall))
+wallgrinding = (!grounded &amp;&amp; (place_meeting(x+xspd_step+1,y,obj_wall) || place_meeting(x-xspd_step,y,obj_wall)))
     
 // Move Player X
 x += xspd;
