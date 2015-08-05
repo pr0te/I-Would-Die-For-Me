@@ -125,6 +125,9 @@ if (!grounded) {
         yspd += fallspd_step;    
 }
 
+// Wallgrinding
+wallgrinding = (!grounded &amp;&amp; (place_meeting(x+xspd_step+1,y,obj_wall) || place_meeting(x-xspd_step,y,obj_wall)))
+
 // Movement
 if (keyU &amp;&amp; !holdingUp) {
     if (grounded) {
@@ -133,9 +136,9 @@ if (keyU &amp;&amp; !holdingUp) {
     }
     if (wallgrinding) {
         yspd = -wj_height;
-        if (place_meeting(x+1,y,obj_wall))
+        if (place_meeting(x+1+xspd_step,y,obj_wall))
             xspd = -wj_dist;
-        else if (place_meeting(x-1,y,obj_wall))
+        else if (place_meeting(x-1-xspd_step,y,obj_wall))
             xspd = wj_dist;
         wallgrinding = false;
     }
@@ -143,9 +146,7 @@ if (keyU &amp;&amp; !holdingUp) {
 
 if (keyL) {
     if (!place_meeting(x-xspd_step,y,obj_wall)) {
-        if (xspd - xspd_step &lt; -max_xspd)
-            xspd = -max_xspd;
-        else
+        if (xspd - xspd_step &gt;= -max_xspd)
             xspd -= xspd_step;
     } else
         x = floor(x);
@@ -154,9 +155,7 @@ if (keyL) {
 
 if (!dead &amp;&amp; keyR) {
     if (!place_meeting(x+xspd_step+1,y,obj_wall)) {
-        if (xspd + xspd_step &gt; max_xspd)
-            xspd = max_xspd;
-        else
+        if (xspd + xspd_step &lt;= max_xspd)
             xspd += xspd_step;
     } else
         x = ceil(x);
@@ -178,9 +177,6 @@ if (xspd &lt; 0 &amp;&amp; place_meeting(x+xspd,y,obj_wall)) {
     x = ceil(x);
     xspd = 0;
 }
-
-// Wallgrinding
-wallgrinding = (!grounded &amp;&amp; (place_meeting(x+xspd_step+1,y,obj_wall) || place_meeting(x-xspd_step,y,obj_wall)))
     
 // Move Player X
 x += xspd;
