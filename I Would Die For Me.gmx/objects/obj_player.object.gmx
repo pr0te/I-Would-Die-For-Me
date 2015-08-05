@@ -147,23 +147,24 @@ if (keyU &amp;&amp; !holdingUp) {
 if (keyL) {
     if (!place_meeting(x-xspd_step,y,obj_wall)) {
         if (xspd - xspd_step &gt;= -max_xspd)
-            xspd -= xspd_step;
+            xspd -= xspd_step*2;
     } else
         x = floor(x);
-} else if (xspd &lt; 0)
+}
+if (xspd &lt; 0)
     xspd += xspd_step;
 
-if (!dead &amp;&amp; keyR) {
+if (keyR) {
     if (!place_meeting(x+xspd_step+1,y,obj_wall)) {
         if (xspd + xspd_step &lt;= max_xspd)
-            xspd += xspd_step;
+            xspd += xspd_step*2;
     } else
         x = ceil(x);
-} else if (xspd &gt; 0)
+}
+if (xspd &gt; 0)
     xspd -= xspd_step;
 
 // X Collision
-
 if (xspd &lt; 0 &amp;&amp; place_meeting(x+xspd,y,obj_wall)) {
     for (i = 1; i &lt; -xspd; ++i)
         if (!place_meeting(x-1,y,obj_wall))
@@ -194,7 +195,7 @@ if (place_meeting(x,y+yspd,obj_wall)) {
         for (i = 1; i &lt; -yspd; ++i)
             if (!place_meeting(x,y-1,obj_wall))
                 y--;
-        y = floor(y);
+        y = ceil(y);
     }
     yspd = 0;
 }
