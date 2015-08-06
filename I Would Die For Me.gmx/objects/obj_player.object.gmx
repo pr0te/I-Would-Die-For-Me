@@ -27,9 +27,11 @@
             <kind>1</kind>
             <string>// Properties
 width = 16;
-height = 24;
+height = 16;
 startx = x;
 starty = y;
+realx = x;
+realy = y;
 
 // Speed Constants
 max_fallspd = 8;
@@ -41,6 +43,7 @@ wj_dist = 5;
 
 max_xspd = 2;
 xspd_step = 0.2;
+xspd_decel = 0.95;
 
 
 // Speed Variabels
@@ -52,6 +55,8 @@ dead = false;
 holdingUp = false;
 grounded = false;
 wallgrinding = false;
+
+keyPriority = 0;
 </string>
           </argument>
         </arguments>
@@ -105,15 +110,13 @@ keyR = keyboard_check(vk_right);
 keyU = keyboard_check(vk_up);
 keyD = keyboard_check(vk_down);
 
+if (keyboard_check_pressed(vk_right))
+    keyPriority = 1;
+else if (keyboard_check_pressed(vk_left))
+    keyPriority = 0;
+
 if (holdingUp &amp;&amp; !keyU)
     holdingUp = false;
-
-// Spike?
-if (place_meeting(x,y,obj_spike)) {
-    instance_create(x,y,obj_wall);
-    x = startx;
-    y = starty;
-}
 
 // Gravity
 if (!grounded) {
@@ -144,67 +147,97 @@ if (keyU &amp;&amp; !holdingUp) {
     }
 }
 
-if (keyL) {
+if (keyL &amp;&amp; keyR) {
+    if (keyPriority == 0) {
+        if (!place_meeting(x-xspd_step,y,obj_wall)) {
+            if (xspd - xspd_step &gt;= -max_xspd)
+                xspd -= xspd_step;
+        }
+    } else {
+        if (!place_meeting(x+xspd_step+1,y,obj_wall)) {
+            if (xspd + xspd_step &lt;= max_xspd)
+                xspd += xspd_step;
+        }
+    }
+} else if (keyL) {
     if (!place_meeting(x-xspd_step,y,obj_wall)) {
         if (xspd - xspd_step &gt;= -max_xspd)
-            xspd -= xspd_step*2;
-    } else
-        x = floor(x);
-}
-if (xspd &lt; 0)
-    xspd += xspd_step;
-
-if (keyR) {
+            xspd -= xspd_step;
+    }
+} else if (keyR) {
     if (!place_meeting(x+xspd_step+1,y,obj_wall)) {
         if (xspd + xspd_step &lt;= max_xspd)
-            xspd += xspd_step*2;
-    } else
-        x = ceil(x);
+            xspd += xspd_step;
+    }
 }
-if (xspd &gt; 0)
-    xspd -= xspd_step;
+
+// Decelerate
+if (xspd != 0) {
+    if (keyL + keyR == 0 || abs(xspd) &gt; max_xspd)
+        xspd *= xspd_decel;
+    if (keyL + keyR == 0 &amp;&amp; abs(xspd) &lt; 0.4)
+        xspd = 0;
+}
 
 // X Collision
 if (xspd &lt; 0 &amp;&amp; place_meeting(x+xspd,y,obj_wall)) {
     for (i = 1; i &lt; -xspd; ++i)
-        if (!place_meeting(x-1,y,obj_wall))
+        if (!place_meeting(x-1,y,obj_wall)) {
             x--;
-    x = floor(x);
+            realx = x;
+        }
     xspd = 0;
 } else if (xspd &gt; 0 &amp;&amp; place_meeting(x+xspd+1,y,obj_wall)){
-    for (i = 1; i &lt; xspd; ++i)
-        if (!place_meeting(x+2,y,obj_wall))
+    for (i = 1; i &lt;= xspd; ++i)
+        if (!place_meeting(x+1,y,obj_wall)) {
             x++;
-    x = ceil(x);
+            realx = x;
+    }
     xspd = 0;
 }
     
 // Move Player X
-x += xspd;
+realx += xspd;
+x = round(realx);
     
 // Y Collision
-if (place_meeting(x,y+yspd,obj_wall)) {
-    if (yspd &gt; 0) {
-        for (i = 1; i &lt; yspd; ++i)
-            if (!place_meeting(x,y+1,obj_wall))
+if (yspd &gt; 0) {
+    if (place_meeting(x,y+yspd+1,obj_wall)) {
+        for (i = 1; i &lt;= yspd; ++i)
+            if (!place_meeting(x,y+1,obj_wall)) {
                 y++;
-        y = floor(y);
+                realy = y;
+            }
         grounded = true;
         wallgrinding = false;
-    } else {
-        for (i = 1; i &lt; -yspd; ++i)
-            if (!place_meeting(x,y-1,obj_wall))
-                y--;
-        y = ceil(y);
+        yspd = 0;
     }
-    yspd = 0;
+} else if (yspd &lt; 0) {
+    if (place_meeting(x,y+yspd,obj_wall)) {
+        for (i = 1; i &lt; -yspd; ++i)
+            if (!place_meeting(x,y-1,obj_wall)) {
+                y--;
+                realy = y;
+            }
+        yspd = 0;
+    }
 }
 
 if (grounded &amp;&amp; !place_meeting(x,y+1,obj_wall))
     grounded = false;
     
 // Move Player Y
-y += yspd;
+realy += yspd;
+y = round(realy);
+
+// Spike?
+if (place_meeting(x,y,obj_spike)) {
+    instance_create(x-width/2,y-height/2,obj_spiked);
+    realx = startx;
+    realy = starty;
+    x = startx;
+    y = starty;
+}
 </string>
           </argument>
         </arguments>

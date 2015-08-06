@@ -11,15 +11,20 @@
     <sprite>sprites\spr_spike</sprite>
     <sprite>sprites\spr_gun</sprite>
     <sprite>sprites\spr_laser</sprite>
+    <sprite>sprites\spr_spiked</sprite>
   </sprites>
   <backgrounds name="background"/>
   <paths name="paths"/>
+  <scripts name="scripts">
+    <script>scripts\MoveLeft.gml</script>
+  </scripts>
   <objects name="objects">
     <object>objects\obj_wall</object>
     <object>objects\obj_player</object>
     <object>objects\obj_spike</object>
     <object>objects\obj_gun</object>
     <object>objects\obj_laser</object>
+    <object>objects\obj_spiked</object>
   </objects>
   <rooms name="rooms">
     <room>rooms\room0</room>
