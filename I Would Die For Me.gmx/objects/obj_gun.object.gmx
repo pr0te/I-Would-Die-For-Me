@@ -5,7 +5,7 @@
   <visible>-1</visible>
   <depth>0</depth>
   <persistent>0</persistent>
-  <parentName>&lt;undefined&gt;</parentName>
+  <parentName>obj_wall</parentName>
   <maskName>&lt;undefined&gt;</maskName>
   <events>
     <event eventtype="0" enumb="0">
@@ -25,7 +25,19 @@
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>laser = false;
+            <string>STATE_LASER = 0;
+STATE_FIRING = 1;
+STATE_PAUSE = 2;
+
+FIRST_PAUSE = 45;
+START_FIRE = 75;
+END_FIRE = 195;
+RE_LASER = 225;
+
+state = STATE_LASER;
+timer = 0;
+timing = false;
+firstFrame = false;
 </string>
           </argument>
         </arguments>
@@ -48,15 +60,80 @@
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>if (!laser) {
-    currentX = x-16;
-    currentY = y;
-    while (!place_meeting(currentX, currentY, obj_wall)) {
-        instance_create(currentX, currentY, obj_laser);
+            <string>if (state == STATE_LASER || state == STATE_FIRING) {
+    firstFrame = false;
+    currentX = x-1;
+    while (!collision_point(currentX,y+7,all,false,false)) {
         currentX -= 16;
     }
-    laser = true;
+    if (collision_point(currentX,y+7,obj_player,false,false))
+        if (timer == 0)
+            timing = true;
+        else if (state == STATE_FIRING) { // Death
+            var dead = instance_create(obj_player.x-obj_player.width/2,obj_player.y-obj_player.height/2,obj_dead);
+            dead.realx = obj_player.realx;
+            dead.realy = obj_player.realy;
+            dead.x = obj_player.x;
+            dead.y = obj_player.y;
+            dead.xspd = obj_player.xspd;
+            dead.yspd = obj_player.yspd;
+            obj_player.x = obj_player.startx;
+            obj_player.y = obj_player.starty;
+            obj_player.realx = obj_player.startx;
+            obj_player.realy = obj_player.starty;
+        }
+    if (currentX != x-1) {
+        while (collision_point(currentX+1,y+7,all,false,false)) {
+            currentX++;
+        }
+    }
 }
+
+if (timing) {
+    timer++;    
+    if (state == STATE_LASER &amp;&amp; timer == FIRST_PAUSE)
+        state = STATE_PAUSE;
+    else if (state == STATE_FIRING &amp;&amp; timer == END_FIRE)
+        state = STATE_PAUSE;
+    else if (state == STATE_PAUSE) {
+        if (timer == START_FIRE){
+            state = STATE_FIRING;
+            firstFrame = true;
+        }
+        else if (timer == RE_LASER) {
+            state = STATE_LASER;
+            timer = 0;
+            timing = false;
+            firstFrame = true;
+        }
+    }       
+}
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="8" enumb="73">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>if (state == STATE_LASER &amp;&amp; !firstFrame)
+    draw_line_width_colour(x-1,y+7,currentX,y+7,2,c_red,c_red);
+else if (state == STATE_FIRING &amp;&amp; !firstFrame)
+    draw_line_width_colour(x-1,y+7,currentX,y+7,2,c_yellow,c_yellow);
 </string>
           </argument>
         </arguments>

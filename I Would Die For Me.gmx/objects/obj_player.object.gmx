@@ -5,7 +5,7 @@
   <visible>-1</visible>
   <depth>0</depth>
   <persistent>0</persistent>
-  <parentName>&lt;undefined&gt;</parentName>
+  <parentName>obj_wall</parentName>
   <maskName>&lt;undefined&gt;</maskName>
   <events>
     <event eventtype="0" enumb="0">
@@ -230,9 +230,15 @@ if (grounded &amp;&amp; !place_meeting(x,y+1,obj_wall))
 realy += yspd;
 y = round(realy);
 
-// Spike?
+// Spike
 if (place_meeting(x,y,obj_spike)) {
-    instance_create(x-width/2,y-height/2,obj_spiked);
+    var dead = instance_create(x-width/2,y-height/2,obj_dead);
+    dead.realx = realx;
+    dead.realy = realy;
+    dead.x = x;
+    dead.y = y;
+    dead.xspd = xspd;
+    dead.yspd = yspd;
     realx = startx;
     realy = starty;
     x = startx;

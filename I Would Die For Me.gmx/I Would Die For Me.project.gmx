@@ -9,25 +9,30 @@
     <sprite>sprites\spr_wall</sprite>
     <sprite>sprites\spr_player</sprite>
     <sprite>sprites\spr_spike</sprite>
+    <sprite>sprites\spr_spike_left</sprite>
+    <sprite>sprites\spr_spike_right</sprite>
+    <sprite>sprites\spr_spike_ceil</sprite>
     <sprite>sprites\spr_gun</sprite>
-    <sprite>sprites\spr_laser</sprite>
-    <sprite>sprites\spr_spiked</sprite>
+    <sprite>sprites\spr_dead</sprite>
   </sprites>
   <backgrounds name="background"/>
   <paths name="paths"/>
-  <scripts name="scripts">
-    <script>scripts\MoveLeft.gml</script>
-  </scripts>
+  <scripts name="scripts"/>
   <objects name="objects">
     <object>objects\obj_wall</object>
     <object>objects\obj_player</object>
     <object>objects\obj_spike</object>
+    <object>objects\obj_spike_ceil</object>
+    <object>objects\obj_spike_floor</object>
+    <object>objects\obj_spike_left</object>
+    <object>objects\obj_spike_right</object>
     <object>objects\obj_gun</object>
-    <object>objects\obj_laser</object>
-    <object>objects\obj_spiked</object>
+    <object>objects\obj_gun_constant</object>
+    <object>objects\obj_dead</object>
   </objects>
   <rooms name="rooms">
     <room>rooms\room0</room>
+    <room>rooms\room1</room>
   </rooms>
   <help>
     <rtf>help.rtf</rtf>
