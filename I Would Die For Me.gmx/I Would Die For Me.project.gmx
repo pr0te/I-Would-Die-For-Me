@@ -11,8 +11,12 @@
     <sprite>sprites\spr_spike</sprite>
     <sprite>sprites\spr_gun</sprite>
     <sprite>sprites\spr_laser</sprite>
+    <sprite>sprites\spr_spacewindow</sprite>
+    <sprite>sprites\spr_fan</sprite>
   </sprites>
-  <backgrounds name="background"/>
+  <backgrounds name="background">
+    <background>background\tileset</background>
+  </backgrounds>
   <paths name="paths"/>
   <objects name="objects">
     <object>objects\obj_wall</object>
@@ -20,8 +24,11 @@
     <object>objects\obj_spike</object>
     <object>objects\obj_gun</object>
     <object>objects\obj_laser</object>
+    <object>objects\obj_fan</object>
+    <object>objects\obj_spacewindow</object>
   </objects>
   <rooms name="rooms">
+    <room>rooms\room1</room>
     <room>rooms\room0</room>
   </rooms>
   <help>
